@@ -6,27 +6,46 @@ import java.awt.event.KeyEvent;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import client.controller.ClientController;
 import client.controller.LobbyController;
 import client.model.Client;
 
 @SuppressWarnings("serial")
 public class DrawSomething extends JFrame {
 	
-	// menu
-	// gui
+	// TODO menu
+	
 	// changing the "main" panel
 	private JPanel currentPanel;	
 	public DrawSomething(JPanel view) {
 		JMenuBar menuBar = new JMenuBar();
 		//Build the first menu.
-		JMenu menu = new JMenu("A Menu");
-		menu.setMnemonic(KeyEvent.VK_A);
+		JMenu menu = new JMenu("FILE");
+		menu.setMnemonic(KeyEvent.VK_F);
 		menu.getAccessibleContext().setAccessibleDescription(
-				"The only menu in this program that has menu items");
+				"Create or join games.");
 		menuBar.add(menu);
+		
+		JMenuItem create = new JMenuItem("Create Game");
+		menu.setMnemonic(KeyEvent.VK_C);
+		menu.add(create);
+		
+		JMenuItem join = new JMenuItem("Join Game");
+		menu.setMnemonic(KeyEvent.VK_J);
+		menu.add(join);
+		
+		JMenuItem leave = new JMenuItem("Leave Game");
+		menu.setMnemonic(KeyEvent.VK_L);
+		menu.add(leave);
+		
+		JMenuItem exit = new JMenuItem("Exit Program");
+		menu.setMnemonic(KeyEvent.VK_Q);
+		menu.add(exit);		
+		
 		setJMenuBar(menuBar);
 		
 		
@@ -34,7 +53,7 @@ public class DrawSomething extends JFrame {
 		add(this.currentPanel);
 		
 		setResizable(false);
-		setSize(new Dimension(800, 650));
+		setSize(new Dimension(1024, 800));
 	}
 	
 	public void changePanel(JPanel newView) {
@@ -49,12 +68,21 @@ public class DrawSomething extends JFrame {
 
 		// start client
 		try {
-			Client model = new Client(username);			
+			final Client model = new Client(username);	
 			LobbyPanel view = new LobbyPanel(model);			
+			ClientController clientController = new ClientController(model, view);
 			LobbyController controller = new LobbyController(model, view);
 			
 			DrawSomething game = new DrawSomething(view);
 			game.setVisible(true);
+			
+			// TODO close socket when window closes
+			game.addWindowListener(new java.awt.event.WindowAdapter() {
+			    @Override
+			    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+			    	model.closeConnection();
+			    }
+			});
 						
 		} catch (Exception e) {
 			e.printStackTrace();

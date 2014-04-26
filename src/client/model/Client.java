@@ -1,55 +1,72 @@
 package client.model;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Vector;
+
+import server.Server.MessageTypes;
 
 public class Client {
-	public static final String SERVER_IP = "138.67.187.61";
+	public static final String SERVER_IP = "localhost";
 	public static final int SERVER_PORT = 1134;
 	
+	private String username;
 	private Socket connection;
+	private Vector<String> userList;
 	
-	public Client(String username) throws Exception {
+	public Client(String username) throws IOException {
+		this.username = username;
 		this.connection = new Socket(SERVER_IP, SERVER_PORT);
-		
-		// send username
-		PrintWriter out = new PrintWriter(this.connection.getOutputStream(), true);
-		System.out.println("Sending username: " + username);
-		out.println(username);
-		
-		
-		// start read thread
-		new Thread(new ConnectionReader(this.connection)).start();
 	}
 	
-	private class ConnectionReader implements Runnable {
-		private Socket connection;
-		private BufferedReader in;
+	public void addUsername() {
 		
-		public ConnectionReader(Socket connection) throws IOException {
+	}
+	
+	public void setUserList() {
+		
+		// dispatch event
+	}
+	
+	public String getUsername() {
+		return this.username;
+	}
+	
+	public Socket getConnection() {
+		return this.connection;
+	}
+
+	public void closeConnection() {
+		try {
+			// TODO let server know we're closing
+			Thread t = new Thread(new Client.MessageWriter(MessageTypes.QUIT, "", connection));
+			t.start();
+			t.join();
+			connection.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static class MessageWriter implements Runnable {
+		private MessageTypes opcode;
+		private String message;
+		private Socket connection;
+		public MessageWriter(MessageTypes opcode, String message, Socket connection) {
+			this.opcode = opcode;
+			this.message = message;
 			this.connection = connection;
-			
-			in = new BufferedReader(new InputStreamReader(
-					connection.getInputStream()));
 		}
 		
 		public void run() {
-			while (connection.isConnected()) {
-				try {
-					String message = in.readLine();
-					// parse message
-					System.out.println("Client got message: " + message);
-					
-					// got public message?
-					//	dispatchEvent(new ClientMessage(message))
-					
-					// new Thread(Server.MessageBroadcast(messageToSend, currentRoom)).start();
-				} catch (IOException e) {
-					break;
-				}
+			try {
+				PrintWriter out = new PrintWriter(connection.getOutputStream(), true);
+				out.println(this.opcode + " " + this.message);
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
 	}

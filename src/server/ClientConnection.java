@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
+import server.Server.MessageTypes;
+import util.StringUtil;
+
 public class ClientConnection {
 	
 	private String currentRoom;
@@ -36,11 +39,33 @@ public class ClientConnection {
 
 		@Override
 		public void run() {
-			new Thread(server.getNewBroadcast("Hey", currentRoom)).start();
 			while (connection.isConnected()) {
 				try {
 					
 					String message = in.readLine();
+					if (message == null) {
+						connection.close();
+						break;
+					}
+					
+					String[] tokens = message.split(" ");
+					
+					MessageTypes opcode = MessageTypes.fromValue(tokens[0]);
+					switch(opcode) {
+						case QUIT: {
+							server.disconnectUser(username);
+							new Thread(server.getNewBroadcast(MessageTypes.USEREXIT, username, currentRoom)).start();
+							break;
+						}
+						case MESSAGE: {
+							String[] messageArr = StringUtil.splice(tokens, 1, tokens.length);
+							String result = StringUtil.join(messageArr, " ");
+							
+							new Thread(server.getNewBroadcast(MessageTypes.MESSAGE, result, currentRoom)).start();
+							break;
+						}
+					}
+					
 					// parse message
 					System.out.println("Server got message: " + message);
 					
@@ -60,5 +85,9 @@ public class ClientConnection {
 
 	public Socket getSocket() {
 		return this.connection;
+	}
+
+	public String getUsername() {
+		return this.username;
 	}
 }
