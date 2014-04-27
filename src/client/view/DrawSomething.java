@@ -1,7 +1,10 @@
 package client.view;
 
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -10,6 +13,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import server.Server.MessageTypes;
+
 import client.controller.ClientController;
 import client.controller.LobbyController;
 import client.model.Client;
@@ -17,11 +22,11 @@ import client.model.Client;
 @SuppressWarnings("serial")
 public class DrawSomething extends JFrame {
 	
-	// TODO menu
-	
-	// changing the "main" panel
-	private JPanel currentPanel;	
-	public DrawSomething(JPanel view) {
+	public DrawSomething(final Client model) throws IOException {
+		LobbyPanel view = new LobbyPanel(model, this);			
+		ClientController clientController = new ClientController(model, view);
+		LobbyController controller = new LobbyController(model, view);
+		
 		JMenuBar menuBar = new JMenuBar();
 		//Build the first menu.
 		JMenu menu = new JMenu("FILE");
@@ -33,6 +38,17 @@ public class DrawSomething extends JFrame {
 		JMenuItem create = new JMenuItem("Create Game");
 		menu.setMnemonic(KeyEvent.VK_C);
 		menu.add(create);
+		
+		create.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				String roomname = JOptionPane.showInputDialog(null,
+						"Enter a roomname:", "Draw Something",
+						JOptionPane.QUESTION_MESSAGE);
+				new Thread(new Client.MessageWriter(MessageTypes.CREATE, roomname, model.getConnection())).start();
+			}
+		});
 		
 		JMenuItem join = new JMenuItem("Join Game");
 		menu.setMnemonic(KeyEvent.VK_J);
@@ -47,17 +63,10 @@ public class DrawSomething extends JFrame {
 		menu.add(exit);		
 		
 		setJMenuBar(menuBar);
-		
-		
-		this.currentPanel = view;
-		add(this.currentPanel);
+		add(view);
 		
 		setResizable(false);
 		setSize(new Dimension(1024, 800));
-	}
-	
-	public void changePanel(JPanel newView) {
-		this.currentPanel = newView;
 	}
 
 	public static void main(String args[]) {
@@ -69,11 +78,8 @@ public class DrawSomething extends JFrame {
 		// start client
 		try {
 			final Client model = new Client(username);	
-			LobbyPanel view = new LobbyPanel(model);			
-			ClientController clientController = new ClientController(model, view);
-			LobbyController controller = new LobbyController(model, view);
+			DrawSomething game = new DrawSomething(model);
 			
-			DrawSomething game = new DrawSomething(view);
 			game.setVisible(true);
 			
 			// TODO close socket when window closes

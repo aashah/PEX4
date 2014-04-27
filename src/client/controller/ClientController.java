@@ -5,12 +5,14 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Arrays;
 
 import server.Server;
 import server.Server.MessageTypes;
 import util.StringUtil;
 import client.model.Client;
 import client.view.LobbyPanel;
+import client.view.LobbyPanel.GameState;
 
 public class ClientController {
 	private Client model;
@@ -77,9 +79,19 @@ public class ClientController {
 						}
 						case MESSAGE: {
 							// TODO concat tokens array
-							String[] messageArr = StringUtil.splice(tokens, 2, tokens.length);
+							String[] messageArr = Arrays.copyOfRange(tokens, 2, tokens.length);
 							String result = StringUtil.join(messageArr, " ");
 							view.newMessage(tokens[1], result);
+							break;
+						}
+						case CREATE: {
+							String response = tokens[1];
+							if ("name_conflict".equals(response)) {
+								view.newMessage("Server", "Error: Room already exists with that name");
+							} else if ("success".equals(response)) {
+								// TODO switch GUI panel
+								view.switchTo(GameState.GAME);
+							}
 							break;
 						}
 						default: {

@@ -1,14 +1,25 @@
 package client.view;
 
+import java.awt.Color;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyListener;
 
 import javax.swing.DefaultListModel;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.text.DefaultCaret;
 
 import client.model.Client;
 
+@SuppressWarnings("serial")
 public class LobbyPanel extends javax.swing.JPanel {
+	public enum GameState {
+		LOBBY, GAME;
+	};
+	
 	private Client model;
+	private JFrame parent;
+	private GameState currentState;
 	
     private javax.swing.JButton sendMessage;
     private DefaultListModel<String> userListModel;
@@ -19,13 +30,15 @@ public class LobbyPanel extends javax.swing.JPanel {
     private javax.swing.JTextArea message;
     private javax.swing.JTextField messageInput;
     
-    public LobbyPanel(Client model) {
+    public LobbyPanel(Client model, JFrame game) {
     	this.model = model;
+    	this.parent = game;
         initComponents();
     }
                          
     private void initComponents() {
-
+    	currentState = GameState.LOBBY;
+    	
         messagesScrollPane = new javax.swing.JScrollPane();
         message = new javax.swing.JTextArea();
         userListScrollPane = new javax.swing.JScrollPane();
@@ -37,7 +50,9 @@ public class LobbyPanel extends javax.swing.JPanel {
 
         message.setColumns(20);
         message.setRows(5);
-        message.setWrapStyleWord(true);
+        message.setLineWrap(true);
+        DefaultCaret caret = (DefaultCaret) message.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
         messagesScrollPane.setViewportView(message);
 
         userList.setModel(userListModel);
@@ -45,18 +60,11 @@ public class LobbyPanel extends javax.swing.JPanel {
 
         sendMessage.setText("sendMessage");
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(mainPanel);
-        mainPanel.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-        );
-
         messageInput.setText("jTextField1");
+        
+        
+        
+        this.switchTo(GameState.LOBBY);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -98,7 +106,6 @@ public class LobbyPanel extends javax.swing.JPanel {
 	
 	public void removeUser(String username) {
 		userListModel.removeElement(username);
-		System.out.println("Size: " + userListModel.getSize());
 	}
 	
 	public void addSendMessageButtonListener(ActionListener listener) {
@@ -114,5 +121,41 @@ public class LobbyPanel extends javax.swing.JPanel {
 
 	public void newMessage(String username, String string) {
 		this.message.append(username + ": " + string + "\n");		
+	}
+
+	public void clearInputMessage() {
+		this.messageInput.setText("");
+	}
+	
+	public void switchTo(GameState state) {
+		mainPanel.removeAll();
+		mainPanel.setBackground(Color.RED);
+		switch (state) {
+		case LOBBY: {
+			// change the panel
+			this.mainPanel.add(new JPanel());
+			// same thing as GAME
+			break;
+		}
+		case GAME: {
+			JPanel j = new GamePanel();
+			j.setSize(this.mainPanel.getWidth(), this.mainPanel.getHeight());
+			this.mainPanel.add(j);
+			// TODO Clear the board, refresh userlist...etc
+			break;
+		}
+		}
+		
+		javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(mainPanel);
+        mainPanel.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+        
 	}
 }

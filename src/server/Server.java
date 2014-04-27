@@ -17,6 +17,7 @@ public class Server {
 		USEREXIT("userexit"),
 		USERLIST("userlist"),
 		MESSAGE("message"),
+		CREATE("create"),
 		QUIT("quit")
 		;
 		
@@ -43,10 +44,11 @@ public class Server {
 	
 	private ServerSocket serverSocket;
 	private Map<String, ClientConnection> connections;
+	private Map<String, GameRoom> games;
 	
 	public Server() throws Exception {
 		connections = new ConcurrentHashMap<>();
-		
+		games = new ConcurrentHashMap<>();
 		initServer();		
 	}	
 	
@@ -64,7 +66,7 @@ public class Server {
 			
 			// validate username			
 			if (connections.containsKey(username)) {
-				Thread t = new Thread(rawMessage(MessageTypes.ERROR, "name_conflict", connection));
+				Thread t = new Thread(getRawMessage(MessageTypes.ERROR, "name_conflict", connection));
 				t.start();
 				t.join();
 				connection.close();
@@ -77,13 +79,8 @@ public class Server {
 			// send this one guy the userlist for his room
 			// build list into string
 			if (connections.size() > 0) {
-				String userList = "";
-				for (ClientConnection entry : connections.values()) {
-					userList += entry.getUsername() + ",";
-				}
-				
-				userList = userList.substring(0, userList.length() - 1);
-				new Thread(rawMessage(MessageTypes.USERLIST, userList, connection)).start();
+				String userList = getUserList("#lobby");
+				new Thread(getRawMessage(MessageTypes.USERLIST, userList, connection)).start();
 			}
 			
 			connections.put(username, newConnection);
@@ -91,8 +88,45 @@ public class Server {
 			new Thread(getNewBroadcast(MessageTypes.NEWUSER, username, "#lobby")).start();
 		}
 	}
+
+	public String getUserList(String room) {
+		String userList = "";
+		for (ClientConnection entry : connections.values()) {
+			if (entry.getCurrentRoom().equals(room)) {
+				userList += entry.getUsername() + ",";
+			}
+		}
+		if (userList.length() > 0) {
+			userList = userList.substring(0, userList.length() - 1);
+		}
+		return userList;
+	}
 	
-	private MessageBroadcast rawMessage(MessageTypes opcode, String message, Socket connection) {
+	public boolean gameExists(String roomname) {
+		return games.containsKey(roomname);
+	}
+	
+	public GameRoom getGame(String roomname) {
+		return games.get(roomname);
+	}
+	
+	public void createRoom(GameRoom newRoom, String username) {
+		games.put(newRoom.getName(), newRoom);
+		connections.get(username).setCurrentRoom(newRoom.getName());
+	}
+	
+	public void disconnectUser(String username) {
+		if (connections.containsKey(username)) {
+			try {
+				connections.get(username).getSocket().close();
+			} catch (IOException unusedException) {
+				// should not happen
+			}
+			connections.remove(username);
+		}
+	}
+	
+	public MessageBroadcast getRawMessage(MessageTypes opcode, String message, Socket connection) {
 		Vector<Socket> socket = new Vector<Socket>();
 		socket.add(connection);
 		return new MessageBroadcast(opcode, message, socket);
@@ -134,17 +168,6 @@ public class Server {
 		}
 	}
 	
-	public void disconnectUser(String username) {
-		if (connections.containsKey(username)) {
-			try {
-				connections.get(username).getSocket().close();
-			} catch (IOException unusedException) {
-				// should not happen
-			}
-			connections.remove(username);
-		}
-	}
-	
 	public static void main(String args[]) {
 		try {
 			new Server();
@@ -152,4 +175,6 @@ public class Server {
 			e.printStackTrace();
 		}
 	}
+
+	
 }

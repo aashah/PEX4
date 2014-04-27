@@ -23,6 +23,8 @@ public class LobbyController {
 				String message = view.getInputMessage();
 				System.out.println("Sending " + message);
 				sendMessage(message);
+				
+				view.clearInputMessage();
 			}			
 		});
 		
@@ -38,6 +40,7 @@ public class LobbyController {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 					String message = view.getInputMessage();
 					sendMessage(message);
+					view.clearInputMessage();
 				}				
 			}
 			
