@@ -42,7 +42,6 @@ public class DrawSomething extends JFrame {
 		create.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				String roomname = JOptionPane.showInputDialog(null,
 						"Enter a roomname:", "Draw Something",
 						JOptionPane.QUESTION_MESSAGE);
@@ -54,13 +53,37 @@ public class DrawSomething extends JFrame {
 		menu.setMnemonic(KeyEvent.VK_J);
 		menu.add(join);
 		
+		join.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String roomname = JOptionPane.showInputDialog(null,
+						"Enter a roomname:", "Draw Something",
+						JOptionPane.QUESTION_MESSAGE);
+				new Thread(new Client.MessageWriter(MessageTypes.JOIN, roomname, model.getConnection())).start();
+			}
+		});
+		
 		JMenuItem leave = new JMenuItem("Leave Game");
 		menu.setMnemonic(KeyEvent.VK_L);
 		menu.add(leave);
 		
+		leave.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new Thread(new Client.MessageWriter(MessageTypes.LEAVE, "", model.getConnection())).start();
+			}
+		});
+		
 		JMenuItem exit = new JMenuItem("Exit Program");
 		menu.setMnemonic(KeyEvent.VK_Q);
-		menu.add(exit);		
+		menu.add(exit);
+		
+		exit.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new Thread(new Client.MessageWriter(MessageTypes.QUIT, "", model.getConnection())).start();
+			}
+		});
 		
 		setJMenuBar(menuBar);
 		add(view);

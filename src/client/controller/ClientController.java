@@ -7,12 +7,14 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Arrays;
 
+import javax.swing.JOptionPane;
+
 import server.Server;
 import server.Server.MessageTypes;
 import util.StringUtil;
 import client.model.Client;
 import client.view.LobbyPanel;
-import client.view.LobbyPanel.GameState;
+import client.view.LobbyPanel.ProgramState;
 
 public class ClientController {
 	private Client model;
@@ -62,18 +64,23 @@ public class ClientController {
 							connection.close();
 							break;
 						}
-						case USERLIST: {
-							String[] users = tokens[1].split(",");
-							for (int i = 0; i < users.length; ++i) {
-								view.addUser(users[i]);
+						case USER_LIST: {
+							if (tokens.length > 1) {
+								String[] users = tokens[1].split(",");
+								for (int i = 0; i < users.length; ++i) {
+									view.addUser(users[i]);
+								}
 							}
 							break;
 						}
-						case NEWUSER: {
+						case NEW_USER: {
 							view.addUser(tokens[1]);
 							break;
 						}
-						case USEREXIT: {
+						case USER_EXIT: {
+							if (model.getUsername().equals(tokens[1])) {
+								view.clearUserList();
+							}
 							view.removeUser(tokens[1]);
 							break;
 						}
@@ -90,8 +97,52 @@ public class ClientController {
 								view.newMessage("Server", "Error: Room already exists with that name");
 							} else if ("success".equals(response)) {
 								// TODO switch GUI panel
-								view.switchTo(GameState.GAME);
+								view.switchTo(ProgramState.GAME);
 							}
+							break;
+						}
+						case JOIN: {
+							String response = tokens[1];
+							if ("success".equals(response)) {
+								view.switchTo(ProgramState.GAME);
+							}
+							break;
+						}
+						case LEAVE: {
+							String response = tokens[1];
+							if ("success".equals(response)) {
+								view.switchTo(ProgramState.LOBBY);
+							}
+							break;
+						}
+						case PICK_WORD: {
+							if (tokens.length == 4) {
+								int choice;
+								do {
+									String whichWord = JOptionPane.showInputDialog(null,
+											"Pick a word from the list below, enter 1-3 for your choice.\n" +
+											"1. " + tokens[1] + "\n" +
+											"2. " + tokens[2] + "\n" +
+											"3. " + tokens[3] + "\n", "Draw Something",
+											JOptionPane.QUESTION_MESSAGE);
+									try {									
+										choice = Integer.parseInt(whichWord);
+									} catch (NumberFormatException e) {
+										choice = -1;
+									}
+								} while (choice < 1 || choice > 3);
+								
+								new Thread(new Client.MessageWriter(MessageTypes.PICK_WORD, tokens[choice], model.getConnection())).start();
+								// view.getGame().changeTurn(me);
+								view.getGameModel().isMyTurn(true);
+								view.getGameView().update();
+							}
+							break;
+						}
+						case GAME_READY: {
+							int time = Integer.parseInt(tokens[1]);
+							view.getGameModel().startGame(time);
+							view.getGameView().update();
 							break;
 						}
 						default: {

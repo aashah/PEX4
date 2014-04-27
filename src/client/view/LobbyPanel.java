@@ -10,16 +10,19 @@ import javax.swing.JPanel;
 import javax.swing.text.DefaultCaret;
 
 import client.model.Client;
+import client.model.Game;
 
 @SuppressWarnings("serial")
 public class LobbyPanel extends javax.swing.JPanel {
-	public enum GameState {
+	public enum ProgramState {
 		LOBBY, GAME;
 	};
 	
 	private Client model;
 	private JFrame parent;
-	private GameState currentState;
+	private ProgramState currentState;
+	private Game gameModel;
+	private GamePanel gameView;
 	
     private javax.swing.JButton sendMessage;
     private DefaultListModel<String> userListModel;
@@ -37,7 +40,7 @@ public class LobbyPanel extends javax.swing.JPanel {
     }
                          
     private void initComponents() {
-    	currentState = GameState.LOBBY;
+    	currentState = ProgramState.LOBBY;
     	
         messagesScrollPane = new javax.swing.JScrollPane();
         message = new javax.swing.JTextArea();
@@ -64,7 +67,7 @@ public class LobbyPanel extends javax.swing.JPanel {
         
         
         
-        this.switchTo(GameState.LOBBY);
+        this.switchTo(ProgramState.LOBBY);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -101,11 +104,15 @@ public class LobbyPanel extends javax.swing.JPanel {
     }
 
 	public void addUser(String username) {
-		userListModel.add(userListModel.getSize(), username);
+		userListModel.add(0, username);
 	}
 	
 	public void removeUser(String username) {
 		userListModel.removeElement(username);
+	}
+
+	public void clearUserList() {
+		userListModel.removeAllElements();
 	}
 	
 	public void addSendMessageButtonListener(ActionListener listener) {
@@ -127,7 +134,7 @@ public class LobbyPanel extends javax.swing.JPanel {
 		this.messageInput.setText("");
 	}
 	
-	public void switchTo(GameState state) {
+	public void switchTo(ProgramState state) {
 		mainPanel.removeAll();
 		mainPanel.setBackground(Color.RED);
 		switch (state) {
@@ -138,10 +145,10 @@ public class LobbyPanel extends javax.swing.JPanel {
 			break;
 		}
 		case GAME: {
-			JPanel j = new GamePanel();
-			j.setSize(this.mainPanel.getWidth(), this.mainPanel.getHeight());
-			this.mainPanel.add(j);
-			// TODO Clear the board, refresh userlist...etc
+			gameModel = new Game();
+			gameView = new GamePanel(gameModel);
+			gameView.setSize(this.mainPanel.getWidth(), this.mainPanel.getHeight());
+			this.mainPanel.add(gameView);
 			break;
 		}
 		}
@@ -157,5 +164,13 @@ public class LobbyPanel extends javax.swing.JPanel {
             .addGap(0, 0, Short.MAX_VALUE)
         );
         
+	}
+
+	public Game getGameModel() {
+		return this.gameModel;
+	}
+	
+	public GamePanel getGameView() {
+		return this.gameView;
 	}
 }

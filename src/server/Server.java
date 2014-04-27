@@ -13,12 +13,28 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Server {
 	public enum MessageTypes {
 		ERROR("error"),
-		NEWUSER("newuser"),
-		USEREXIT("userexit"),
-		USERLIST("userlist"),
+		NEW_USER("newuser"),
+		USER_EXIT("userexit"),
+		USER_LIST("userlist"),
 		MESSAGE("message"),
 		CREATE("create"),
-		QUIT("quit")
+		JOIN("join"),
+		LEAVE("leave"),
+		QUIT("quit"),
+		
+		GAME_READY("gameready"),
+		GAME_OVER("gameover"),
+		PICK_WORD("pickword"),
+		CORRECT_GUESS("correctguess"),
+		DRAW("draw")
+		// game opcodes
+		/*
+		 * GAME_READY
+		 * CORRECT_GUESS
+		 * DRAW
+		 * GAME_OVER
+		 * CHANGE_TURN - not needed, just send server message
+		 */
 		;
 		
 		private String type;
@@ -80,12 +96,12 @@ public class Server {
 			// build list into string
 			if (connections.size() > 0) {
 				String userList = getUserList("#lobby");
-				new Thread(getRawMessage(MessageTypes.USERLIST, userList, connection)).start();
+				new Thread(getRawMessage(MessageTypes.USER_LIST, userList, connection)).start();
 			}
 			
 			connections.put(username, newConnection);
 			// let everyone else know someone has joined
-			new Thread(getNewBroadcast(MessageTypes.NEWUSER, username, "#lobby")).start();
+			new Thread(getNewBroadcast(MessageTypes.NEW_USER, username, "#lobby")).start();
 		}
 	}
 
@@ -124,6 +140,13 @@ public class Server {
 			}
 			connections.remove(username);
 		}
+	}
+	
+	public Socket getUserSocket(String username) {
+		if (connections.containsKey(username)) {
+			return connections.get(username).getSocket();
+		}
+		return null;
 	}
 	
 	public MessageBroadcast getRawMessage(MessageTypes opcode, String message, Socket connection) {
