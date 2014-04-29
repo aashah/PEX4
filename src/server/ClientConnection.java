@@ -54,9 +54,12 @@ public class ClientConnection {
 					MessageTypes opcode = MessageTypes.fromValue(tokens[0]);
 					switch(opcode) {
 						case QUIT: {
+							if (server.gameExists(currentRoom)) {
+								GameRoom room = server.getGame(currentRoom);
+								room.remove(username);
+							}
 							server.disconnectUser(username);
 							new Thread(server.getNewBroadcast(MessageTypes.USER_EXIT, username, currentRoom)).start();
-							// TODO was it his turn?
 							break;
 						}
 						case MESSAGE: {
@@ -76,7 +79,7 @@ public class ClientConnection {
 						case CREATE: {
 							// validate room name
 							String roomname = tokens[1];
-							if (server.gameExists(roomname)) {
+							if (server.gameExists(roomname) || roomname.indexOf("#") > -1) {
 								new Thread(server.getRawMessage(MessageTypes.CREATE, "name_conflict", connection));
 								break;
 							}
@@ -86,7 +89,6 @@ public class ClientConnection {
 								t.start();
 								t.join();
 							} catch (Exception e) {}
-							
 							// create new game
 							GameRoom newRoom = new GameRoom(server, roomname);
 							// add him into it
@@ -136,24 +138,20 @@ public class ClientConnection {
 								t.join();
 								
 								// send success
-								t= new Thread(server.getRawMessage(MessageTypes.JOIN, "success", connection));
+								t = new Thread(server.getRawMessage(MessageTypes.JOIN, "success", connection));
 								t.start();
 								t.join();
 							} catch (Exception unusedException) {}
 							break;
 						}
 						case LEAVE: {
-							// TODO if in lobby, treat as QUIT
 							if (!server.gameExists(currentRoom)) {
-								// TODO close connection
+								server.disconnectUser(username);
+								new Thread(server.getNewBroadcast(MessageTypes.USER_EXIT, username, currentRoom)).start();
 								break;
 							}
+							
 							GameRoom room = server.getGame(currentRoom);
-							
-							// remove player
-							room.remove(username);
-							
-							// TODO is room empty?
 							
 							// let everyone know
 							Thread t = new Thread(server.getNewBroadcast(MessageTypes.USER_EXIT, username, currentRoom));
@@ -170,6 +168,15 @@ public class ClientConnection {
 							new Thread(server.getNewBroadcast(MessageTypes.NEW_USER, username, "#lobby")).start();
 							
 							new Thread(server.getRawMessage(MessageTypes.LEAVE, "success", connection)).start();
+							
+							if (room != null) {
+								// remove player
+								room.remove(username);						
+								
+								if (room.getNumberOfPlayers() <= 0) {
+									server.removeGame(room.getName());
+								}
+							}
 							break;
 						}
 						case PICK_WORD: {

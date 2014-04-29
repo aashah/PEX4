@@ -5,7 +5,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyListener;
 
 import javax.swing.DefaultListModel;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.text.DefaultCaret;
 
@@ -20,7 +19,6 @@ public class LobbyPanel extends javax.swing.JPanel {
 	};
 	
 	private Client model;
-	private JFrame parent;
 	
 	private Game gameModel;
 	private GamePanel gameView;
@@ -35,9 +33,8 @@ public class LobbyPanel extends javax.swing.JPanel {
     private javax.swing.JTextArea message;
     private javax.swing.JTextField messageInput;
     
-    public LobbyPanel(Client model, JFrame game) {
+    public LobbyPanel(Client model) {
     	this.model = model;
-    	this.parent = game;
         initComponents();
     }
                          
@@ -64,7 +61,7 @@ public class LobbyPanel extends javax.swing.JPanel {
 
         sendMessage.setText("sendMessage");
 
-        messageInput.setText("jTextField1");
+        messageInput.setText("");
         
         
         

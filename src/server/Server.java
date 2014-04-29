@@ -6,7 +6,12 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -63,15 +68,29 @@ public class Server {
 	
 	public static final int PORT = 1134;
 	
+	private static final Random rand = new Random();
 	private ServerSocket serverSocket;
 	private Map<String, ClientConnection> connections;
 	private Map<String, GameRoom> games;
+	private List<String> wordBank;
 	
 	public Server() throws Exception {
 		connections = new ConcurrentHashMap<>();
 		games = new ConcurrentHashMap<>();
+		loadWordBank();
 		initServer();		
 	}	
+	
+	public void loadWordBank() {
+		try {
+			wordBank = Files.readAllLines(Paths.get("data/wordlist.txt"), Charset.defaultCharset());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		for (String line : wordBank) {
+            System.out.println(line);
+        }
+	}
 	
 	public void initServer() throws Exception {
 		serverSocket = new ServerSocket(PORT);
@@ -123,6 +142,11 @@ public class Server {
 		return userList;
 	}
 	
+	public String getRandomWord() {
+		int randomWord = rand.nextInt(wordBank.size());
+		return wordBank.get(randomWord);
+	}
+	
 	public boolean gameExists(String roomname) {
 		return games.containsKey(roomname);
 	}
@@ -134,6 +158,10 @@ public class Server {
 	public void createRoom(GameRoom newRoom, String username) {
 		games.put(newRoom.getName(), newRoom);
 		connections.get(username).setCurrentRoom(newRoom.getName());
+	}
+
+	public void removeGame(String room) {
+		games.remove(room);
 	}
 	
 	public void disconnectUser(String username) {
@@ -202,7 +230,5 @@ public class Server {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	
+	}	
 }

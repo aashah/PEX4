@@ -40,7 +40,6 @@ public class GameController implements MouseListener, MouseMotionListener {
 			int y = Integer.parseInt(point[1]);
 			g.fillOval(x, y, GamePanel.CIRCLE_SIZE, GamePanel.CIRCLE_SIZE);			
 		}
-		view.update();
 	}
 	
 	private void click(int x, int y) {
@@ -55,7 +54,7 @@ public class GameController implements MouseListener, MouseMotionListener {
 				// check if we're changing the color
 				int currentColor = (x - GamePanel.CONTROLS_OFFSET) / 50;
 				view.setCurrentColor(currentColor);
-				view.repaint();
+				view.refreshControlsUI();
 				
 				new Thread(new Client.MessageWriter(MessageTypes.COLOR, "" + currentColor, model.getConnection())).start();
 				
@@ -116,6 +115,8 @@ public class GameController implements MouseListener, MouseMotionListener {
 		}
 		
 		public void addToQueue(int x, int y) {
+			// TODO Check if the distance between last point and this is over a certain distance
+			// only then add it
 			queue.add(x + "," + y);
 			
 			if (queue.size() >= THRESHOLD) {
@@ -132,8 +133,6 @@ public class GameController implements MouseListener, MouseMotionListener {
 				}
 				System.out.println("Sending " + message);
 				new Thread(new Client.MessageWriter(MessageTypes.DRAW, message, model.getConnection())).start();
-			} else {
-				// queue.clear();
 			}
 		}
 		

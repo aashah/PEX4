@@ -2,17 +2,9 @@ package client.view;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 
-import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
-import server.GameRoom.GameState;
-import server.Server.MessageTypes;
-import client.model.Client;
 import client.model.Game;
 
 @SuppressWarnings("serial")
@@ -39,11 +31,7 @@ public class GamePanel extends JPanel {
 
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		drawUI(g);
-	}
-
-	private void drawUI(Graphics g) {
-		Graphics2D g2d = (Graphics2D) g;
+		refreshControlsUI();
 	}
 	
 	public void update() {
@@ -52,6 +40,7 @@ public class GamePanel extends JPanel {
 	
 	public void refreshControlsUI() {
 		if (model.myTurn()) {
+			System.out.println("Refreshing the controls UI");
 			Graphics g = getGraphics();
 			int width = getWidth();
 			int height = getHeight();
@@ -95,7 +84,8 @@ public class GamePanel extends JPanel {
 		System.out.println("Clearing");
 		Graphics g = getGraphics();
 		g.setColor(Color.WHITE);
-		g.fillRect(0, 0, getWidth(), getHeight() - CONTROLS_HEIGHT);
+		g.fillRect(0, 0, getWidth(), getHeight());
+		refreshControlsUI();
 	}
 	
 	public int getNumColors() {
@@ -103,7 +93,9 @@ public class GamePanel extends JPanel {
 	}
 	
 	public void setCurrentColor(int newColor) {
-		this.currentColor = newColor;
+		if (newColor >= 0 && newColor < this.colors.length) {
+			this.currentColor = newColor;
+		}
 	}
 	
 	public Color getCurrentColor() {

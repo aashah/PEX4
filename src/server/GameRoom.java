@@ -48,9 +48,12 @@ public class GameRoom {
 	
 	public void startTurn() {
 		// give person a word
+		System.out.println("Starting game");
 		String username = order.get(currentPlayer);
 		new Thread(server.getRawMessage(MessageTypes.PICK_WORD,
-				"lion teapot tree", server.getUserSocket(username))).start();
+				server.getRandomWord() + " " +
+				server.getRandomWord() + " " +
+				server.getRandomWord(), server.getUserSocket(username))).start();
 	}
 
 	public void add(String username) {
@@ -92,6 +95,7 @@ public class GameRoom {
 		if (order.get(currentPlayer).equals(username)) {
 			currentWord = word.toLowerCase();
 			currentState = GameState.PLAYING;
+			// TODO Timer?
 			new Thread(server.getNewBroadcast(MessageTypes.GAME_READY, "60", roomname)).start();
 		}
 		
@@ -124,5 +128,9 @@ public class GameRoom {
 		try {
 			t.join();
 		} catch (InterruptedException e) {}
+	}
+
+	public int getNumberOfPlayers() {
+		return this.currentNumberOfPlayers;
 	}
 }

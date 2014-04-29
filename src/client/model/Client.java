@@ -3,7 +3,6 @@ package client.model;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Vector;
 
 import server.Server.MessageTypes;
 
@@ -13,20 +12,10 @@ public class Client {
 	
 	private String username;
 	private Socket connection;
-	private Vector<String> userList;
 	
 	public Client(String username) throws IOException {
 		this.username = username;
 		this.connection = new Socket(SERVER_IP, SERVER_PORT);
-	}
-	
-	public void addUsername() {
-		
-	}
-	
-	public void setUserList() {
-		
-		// dispatch event
 	}
 	
 	public String getUsername() {
@@ -39,7 +28,7 @@ public class Client {
 
 	public void closeConnection() {
 		try {
-			// TODO let server know we're closing
+			// let server know we're closing
 			Thread t = new Thread(new Client.MessageWriter(MessageTypes.QUIT, "", connection));
 			t.start();
 			t.join();

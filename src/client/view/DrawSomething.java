@@ -11,10 +11,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 
 import server.Server.MessageTypes;
-
 import client.controller.ClientController;
 import client.controller.LobbyController;
 import client.model.Client;
@@ -23,9 +21,9 @@ import client.model.Client;
 public class DrawSomething extends JFrame {
 	
 	public DrawSomething(final Client model) throws IOException {
-		LobbyPanel view = new LobbyPanel(model, this);			
-		ClientController clientController = new ClientController(model, view);
-		LobbyController controller = new LobbyController(model, view);
+		LobbyPanel view = new LobbyPanel(model);			
+		new ClientController(model, view);
+		new LobbyController(model, view);
 		
 		JMenuBar menuBar = new JMenuBar();
 		//Build the first menu.
@@ -82,6 +80,7 @@ public class DrawSomething extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				new Thread(new Client.MessageWriter(MessageTypes.QUIT, "", model.getConnection())).start();
+				System.exit(0);
 			}
 		});
 		
@@ -104,7 +103,6 @@ public class DrawSomething extends JFrame {
 			
 			game.setVisible(true);
 			
-			// TODO close socket when window closes
 			game.addWindowListener(new java.awt.event.WindowAdapter() {
 			    @Override
 			    public void windowClosing(java.awt.event.WindowEvent windowEvent) {

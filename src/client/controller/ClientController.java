@@ -85,7 +85,6 @@ public class ClientController {
 							break;
 						}
 						case MESSAGE: {
-							// TODO concat tokens array
 							String[] messageArr = Arrays.copyOfRange(tokens, 2, tokens.length);
 							String result = StringUtil.join(messageArr, " ");
 							view.newMessage(tokens[1], result);
@@ -96,7 +95,6 @@ public class ClientController {
 							if ("name_conflict".equals(response)) {
 								view.newMessage("Server", "Error: Room already exists with that name");
 							} else if ("success".equals(response)) {
-								// TODO switch GUI panel
 								view.switchTo(ProgramState.GAME);
 							}
 							break;
@@ -133,7 +131,6 @@ public class ClientController {
 								} while (choice < 1 || choice > 3);
 								
 								new Thread(new Client.MessageWriter(MessageTypes.PICK_WORD, tokens[choice], model.getConnection())).start();
-								// view.getGame().changeTurn(me);
 								view.getGameModel().isMyTurn(true);
 							}
 							break;
@@ -141,7 +138,7 @@ public class ClientController {
 						case GAME_READY: {
 							int time = Integer.parseInt(tokens[1]);
 							view.getGameModel().startGame(time);
-							view.getGameView().update();
+							view.getGameView().refreshControlsUI();
 							break;
 						}
 						case DRAW: {

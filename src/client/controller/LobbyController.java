@@ -52,7 +52,7 @@ public class LobbyController {
 	}
 	
 	private void sendMessage(String message) {
-		if (message != null || message.length() > 0) {
+		if (message != null && message.length() > 0) {
 			// send it to server as public message	
 			new Thread(new Client.MessageWriter(MessageTypes.MESSAGE, model.getUsername() + " " + message, model.getConnection())).start();
 		}
