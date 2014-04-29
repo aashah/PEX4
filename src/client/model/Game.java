@@ -1,11 +1,18 @@
 package client.model;
 
+import java.net.Socket;
+
 import server.GameRoom.GameState;
 
 public class Game {
+	private Socket connection;
 	private boolean myTurn;
 	private GameState currentState;
 	private int time;
+	
+	public Game(Socket connection) {
+		this.connection = connection;
+	}
 	
 	public void isMyTurn(boolean b) {
 		this.myTurn = b;
@@ -27,6 +34,15 @@ public class Game {
 	
 	public GameState getState() {
 		return this.currentState;
+	}
+
+	public Socket getConnection() {
+		return this.connection;
+	}
+
+	public void roundOver() {
+		this.myTurn = false;
+		this.currentState = GameState.WAITING;
 	}
 
 }

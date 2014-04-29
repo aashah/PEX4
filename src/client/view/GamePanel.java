@@ -11,100 +11,102 @@ import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
 import server.GameRoom.GameState;
+import server.Server.MessageTypes;
+import client.model.Client;
 import client.model.Game;
 
 @SuppressWarnings("serial")
-public class GamePanel extends JPanel implements MouseListener,
-		MouseMotionListener {
+public class GamePanel extends JPanel {	
+	
+	public static final int CONTROLS_HEIGHT = 50;
+	public static final int COLOR_SIZE = 30;
+	public static final int CURRENT_COLOR_SIZE = 40;
+	public static final int CONTROLS_OFFSET = 10;
+	
+	public static final int CIRCLE_SIZE = 10;
+	
 	private Game model;
 	private Color[] colors = { Color.BLACK, Color.WHITE, Color.BLUE,
 			Color.GREEN, Color.RED, Color.YELLOW, Color.MAGENTA, Color.ORANGE,
 			Color.PINK };
 
 	private int currentColor;
-
+	
 	public GamePanel(Game g) {
 		this.model = g;
-		setBorder(BorderFactory.createLineBorder(Color.black));
 		this.setBackground(Color.WHITE);
 	}
 
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-
 		drawUI(g);
-
 	}
 
 	private void drawUI(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;
-		int width = getWidth();
-		int height = getHeight();
-		// bottom 30 pixels = controls bars
-
-		int mainWidth = getWidth();
-		int mainHeight = getHeight() - 50;
-
-		g.setColor(Color.WHITE);
-		g.fillRect(0, 0, mainWidth, mainHeight);
-
-		g.setColor(Color.BLACK);
-		g.drawRect(0, mainHeight, getWidth(), getHeight() - mainHeight);
-
-		// draw colors
-		for (int i = 0; i < colors.length; ++i) {
-			if (i == currentColor) {
-				g.setColor(Color.BLACK);
-				g.drawRect(i * 50 + 5, mainHeight + 5, 40, 40);
-			}
-
-			g.setColor(Color.BLACK);
-			g.drawRect(i * 50 + 10, mainHeight + 10, 30, 30);
-
-			g.setColor(colors[i]);
-			g.fillRect(i * 50 + 10, mainHeight + 10, 30, 30);
-		}
-
-		// clear button
-		g.setColor(Color.WHITE);
-		g.fillRect(width - 53, height - 53, 50, 50);
-		g.setColor(Color.BLACK);
-		g.drawRect(width - 53, height - 53, 49, 49);
-		g.drawString("CLEAR", width - 48, height - 23);
 	}
-
+	
 	public void update() {
-		
+		repaint();
+	}
+	
+	public void refreshControlsUI() {
+		if (model.myTurn()) {
+			Graphics g = getGraphics();
+			int width = getWidth();
+			int height = getHeight();
+			// bottom 30 pixels = controls bars
+
+			int mainWidth = getWidth();
+			int mainHeight = getHeight() - CONTROLS_HEIGHT;
+			
+			// clear controls bar
+			g.setColor(Color.WHITE);
+			g.fillRect(0, mainHeight, mainWidth, getHeight() - mainHeight);
+			
+			// border around controls
+			g.setColor(Color.BLACK);
+			g.drawRect(0, mainHeight, getWidth(), getHeight() - mainHeight);
+	
+			// draw colors
+			for (int i = 0; i < colors.length; ++i) {
+				if (i == currentColor) {
+					g.setColor(Color.BLACK);
+					g.drawRect(i * 50 + 5, mainHeight + 5, 40, 40);
+				}
+	
+				g.setColor(Color.BLACK);
+				g.drawRect(i * 50 + CONTROLS_OFFSET, mainHeight + 10, 30, 30);
+	
+				g.setColor(colors[i]);
+				g.fillRect(i * 50 + CONTROLS_OFFSET, mainHeight + 10, 30, 30);
+			}
+	
+			// clear button
+			g.setColor(Color.WHITE);
+			g.fillRect(width - 53, mainHeight + 5, 40, 40);
+			g.setColor(Color.BLACK);
+			g.drawRect(width - 53, mainHeight + 5, 50, 40);
+			g.drawString("CLEAR", width - 48, height - 23);
+		} 
 	}
 
-	@Override
-	public void mouseDragged(MouseEvent e) {
-
+	public void clear() {
+		System.out.println("Clearing");
+		Graphics g = getGraphics();
+		g.setColor(Color.WHITE);
+		g.fillRect(0, 0, getWidth(), getHeight() - CONTROLS_HEIGHT);
 	}
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-
+	
+	public int getNumColors() {
+		return colors.length;
 	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-
+	
+	public void setCurrentColor(int newColor) {
+		this.currentColor = newColor;
 	}
-
-	@Override
-	public void mouseMoved(MouseEvent e) {
-	}
-
-	@Override
-	public void mouseClicked(MouseEvent e) {
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
+	
+	public Color getCurrentColor() {
+		return this.colors[this.currentColor];
 	}
 }

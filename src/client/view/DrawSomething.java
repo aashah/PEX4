@@ -88,8 +88,7 @@ public class DrawSomething extends JFrame {
 		setJMenuBar(menuBar);
 		add(view);
 		
-		setResizable(false);
-		setSize(new Dimension(1024, 800));
+		setSize(new Dimension(1024, 850));
 	}
 
 	public static void main(String args[]) {

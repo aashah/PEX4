@@ -9,6 +9,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.text.DefaultCaret;
 
+import client.controller.GameController;
 import client.model.Client;
 import client.model.Game;
 
@@ -20,9 +21,10 @@ public class LobbyPanel extends javax.swing.JPanel {
 	
 	private Client model;
 	private JFrame parent;
-	private ProgramState currentState;
+	
 	private Game gameModel;
 	private GamePanel gameView;
+	private GameController gameController;
 	
     private javax.swing.JButton sendMessage;
     private DefaultListModel<String> userListModel;
@@ -40,7 +42,6 @@ public class LobbyPanel extends javax.swing.JPanel {
     }
                          
     private void initComponents() {
-    	currentState = ProgramState.LOBBY;
     	
         messagesScrollPane = new javax.swing.JScrollPane();
         message = new javax.swing.JTextArea();
@@ -145,8 +146,9 @@ public class LobbyPanel extends javax.swing.JPanel {
 			break;
 		}
 		case GAME: {
-			gameModel = new Game();
+			gameModel = new Game(model.getConnection());
 			gameView = new GamePanel(gameModel);
+			gameController = new GameController(gameModel, gameView);
 			gameView.setSize(this.mainPanel.getWidth(), this.mainPanel.getHeight());
 			this.mainPanel.add(gameView);
 			break;
@@ -172,5 +174,9 @@ public class LobbyPanel extends javax.swing.JPanel {
 	
 	public GamePanel getGameView() {
 		return this.gameView;
+	}
+	
+	public GameController getGameController() {
+		return this.gameController;
 	}
 }

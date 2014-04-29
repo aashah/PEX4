@@ -7,7 +7,7 @@ import server.Server.MessageTypes;
 
 public class GameRoom {
 	public static final int MAX_PLAYERS = 10;
-	public static final int MIN_PLAYERS = 1;
+	public static final int MIN_PLAYERS = 2;
 
 	public enum GameState {
 		WAITING, PLAYING;
@@ -30,7 +30,6 @@ public class GameRoom {
 		this.currentNumberOfPlayers = 0;
 
 		this.order = new ArrayList<String>();
-		this.currentPlayer = -1;
 	}
 
 	public String getName() {
@@ -38,12 +37,20 @@ public class GameRoom {
 	}
 
 	public void startGame() {
+		this.currentState = GameState.PLAYING;
 		this.currentPlayer = 0;
-		// give first person a word
+		startTurn();
+	}
+	
+	public void changeTurn() {
+		this.currentPlayer = (this.currentPlayer + 1) % this.currentNumberOfPlayers;
+	}
+	
+	public void startTurn() {
+		// give person a word
 		String username = order.get(currentPlayer);
 		new Thread(server.getRawMessage(MessageTypes.PICK_WORD,
 				"lion teapot tree", server.getUserSocket(username))).start();
-
 	}
 
 	public void add(String username) {
@@ -61,7 +68,20 @@ public class GameRoom {
 	public void remove(String username) {
 		if (this.currentNumberOfPlayers > 0) {
 			this.currentNumberOfPlayers--;
+			
+			if (this.currentNumberOfPlayers < MIN_PLAYERS) {				
+				roundOver(false, "player_count");
+				this.currentState = GameState.WAITING;
+			} else if (username.equals(order.get(currentPlayer))) {
+				roundOver(false, "current_player_left");
+				changeTurn();
+				startTurn();				
+			}
 		}
+	}
+	
+	public String getCurrentPlayer() {
+		return order.get(currentPlayer);
 	}
 
 	public boolean isFull() {
@@ -70,10 +90,39 @@ public class GameRoom {
 
 	public void setWord(String word, String username) {
 		if (order.get(currentPlayer).equals(username)) {
-			currentWord = word;
+			currentWord = word.toLowerCase();
 			currentState = GameState.PLAYING;
 			new Thread(server.getNewBroadcast(MessageTypes.GAME_READY, "60", roomname)).start();
 		}
 		
+	}
+
+	public boolean processGuess(String username, String[] messageArr) {
+		for (int i = 0; i < messageArr.length; ++i) {
+			if (currentWord.equals(messageArr[i].toLowerCase())) {
+				roundOver(true, username);				
+				changeTurn();
+				startTurn();
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void roundOver(boolean correctGuess, String subcode) {
+		String message = "";
+		if (correctGuess) {
+			// subcode = username
+			message += "correct " + subcode + " " + currentWord;
+		} else {
+			message += "incorrect " + subcode;
+		}
+		
+		// send round over
+		Thread t = new Thread(server.getNewBroadcast(MessageTypes.ROUND_OVER, message, roomname));
+		t.start();
+		try {
+			t.join();
+		} catch (InterruptedException e) {}
 	}
 }

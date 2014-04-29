@@ -64,6 +64,13 @@ public class ClientConnection {
 							String result = StringUtil.join(messageArr, " ");
 							
 							new Thread(server.getNewBroadcast(MessageTypes.MESSAGE, result, currentRoom)).start();
+							
+							if (server.gameExists(currentRoom)) {
+								GameRoom room = server.getGame(currentRoom);
+								if (!username.equals(room.getCurrentPlayer())) {
+									room.processGuess(username, messageArr);
+								}
+							}
 							break;
 						}
 						case CREATE: {
@@ -146,6 +153,8 @@ public class ClientConnection {
 							// remove player
 							room.remove(username);
 							
+							// TODO is room empty?
+							
 							// let everyone know
 							Thread t = new Thread(server.getNewBroadcast(MessageTypes.USER_EXIT, username, currentRoom));
 							try {
@@ -165,6 +174,20 @@ public class ClientConnection {
 						}
 						case PICK_WORD: {
 							server.getGame(currentRoom).setWord(tokens[1], username);
+							break;
+						}
+						case DRAW: {
+							String[] drawPoints = Arrays.copyOfRange(tokens, 1, tokens.length);
+							String result = StringUtil.join(drawPoints, " ");
+							new Thread(server.getNewBroadcast(MessageTypes.DRAW, result, currentRoom)).start();
+							break;
+						}
+						case CLEAR: {
+							new Thread(server.getNewBroadcast(MessageTypes.CLEAR, "", currentRoom)).start();
+							break;
+						}
+						case COLOR: {
+							new Thread(server.getNewBroadcast(MessageTypes.COLOR, "" + tokens[1], currentRoom)).start();
 							break;
 						}
 						default: {

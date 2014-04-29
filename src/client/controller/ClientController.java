@@ -135,7 +135,6 @@ public class ClientController {
 								new Thread(new Client.MessageWriter(MessageTypes.PICK_WORD, tokens[choice], model.getConnection())).start();
 								// view.getGame().changeTurn(me);
 								view.getGameModel().isMyTurn(true);
-								view.getGameView().update();
 							}
 							break;
 						}
@@ -144,6 +143,36 @@ public class ClientController {
 							view.getGameModel().startGame(time);
 							view.getGameView().update();
 							break;
+						}
+						case DRAW: {
+							view.getGameController().processClicks(Arrays.copyOfRange(tokens, 1, tokens.length));
+							break;
+						}
+						case CLEAR: {
+							view.getGameView().clear();
+							break;
+						}
+						case COLOR: {
+							view.getGameView().setCurrentColor(Integer.parseInt(tokens[1]));
+							break;
+						}
+						case ROUND_OVER: {
+							String hasWinner = tokens[1];
+							if ("correct".equals(hasWinner)) {
+								String username = tokens[2];
+								String correctWord = tokens[3];
+								view.newMessage("@Server:", username + " got the word correct, the word was: " + correctWord);
+							} else if ("incorrect".equals(hasWinner)) {
+								String subcode = tokens[2];
+								if ("player_count".equals(subcode)) {
+									view.newMessage("@Server:", "Round over. Not enough people are present to play.");
+								} else if ("current_player_left".equals(subcode)) {
+									view.newMessage("@Server:", "Round over. Current player left...changing current drawing player.");
+								}
+							}
+							
+							view.getGameModel().roundOver();
+							view.getGameView().update();
 						}
 						default: {
 							System.out.println("Opcode not found: " + tokens[0]);

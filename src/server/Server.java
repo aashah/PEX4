@@ -23,10 +23,15 @@ public class Server {
 		QUIT("quit"),
 		
 		GAME_READY("gameready"),
-		GAME_OVER("gameover"),
 		PICK_WORD("pickword"),
-		CORRECT_GUESS("correctguess"),
-		DRAW("draw")
+		ROUND_OVER("roundover"), 
+		/*
+		 * roundover [time/correct] [username] [word]
+		 */
+		
+		DRAW("draw"),
+		COLOR("color"),
+		CLEAR("clear")
 		// game opcodes
 		/*
 		 * GAME_READY
