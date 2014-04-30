@@ -26,7 +26,6 @@ public class ClientController {
 		
 		// send username
 		PrintWriter out = new PrintWriter(model.getConnection().getOutputStream(), true);
-		System.out.println("Sending username: " + model.getUsername());
 		out.println(model.getUsername());
 		
 		// start read thread
@@ -55,9 +54,7 @@ public class ClientController {
 					}
 					
 					String[] tokens = message.split(" ");
-					System.out.println("Got message: " + message);
 					Server.MessageTypes opcode = MessageTypes.fromValue(tokens[0]);
-					System.out.println("Opcode: " + opcode);
 					switch (opcode) {
 						case ERROR: {
 							System.out.println("Error: " + message);
@@ -178,7 +175,6 @@ public class ClientController {
 					}
 					
 					// parse message
-					System.out.println("Client got message: " + message);
 				
 					// got public message?
 					//	dispatchEvent(new ClientMessage(message))

@@ -87,14 +87,10 @@ public class Server {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		for (String line : wordBank) {
-            System.out.println(line);
-        }
 	}
 	
 	public void initServer() throws Exception {
 		serverSocket = new ServerSocket(PORT);
-		System.out.println("Started server....");
 		while (true) {
 			Socket connection = serverSocket.accept();
 			
@@ -102,7 +98,6 @@ public class Server {
 					connection.getInputStream()));
 			
 			String username = in.readLine();
-			System.out.println("User: " + username);
 			
 			// validate username			
 			if (connections.containsKey(username)) {

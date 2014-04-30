@@ -131,7 +131,6 @@ public class GameController implements MouseListener, MouseMotionListener {
 				for (int i = 0; i < size; ++i) {
 					message += queue.remove() + " ";
 				}
-				System.out.println("Sending " + message);
 				new Thread(new Client.MessageWriter(MessageTypes.DRAW, message, model.getConnection())).start();
 			}
 		}
