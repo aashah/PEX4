@@ -7,8 +7,8 @@ import java.net.Socket;
 import server.Server.MessageTypes;
 
 public class Client {
-	public static final String SERVER_IP = "localhost";
-	public static final int SERVER_PORT = 1134;
+	public static final String SERVER_IP = "107.170.7.128";
+	public static final int SERVER_PORT = 1198;
 	
 	private String username;
 	private Socket connection;
