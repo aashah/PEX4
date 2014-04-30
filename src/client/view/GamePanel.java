@@ -40,7 +40,6 @@ public class GamePanel extends JPanel {
 	
 	public void refreshControlsUI() {
 		if (model.myTurn()) {
-			System.out.println("Refreshing the controls UI");
 			Graphics g = getGraphics();
 			int width = getWidth();
 			int height = getHeight();
@@ -81,7 +80,6 @@ public class GamePanel extends JPanel {
 	}
 
 	public void clear() {
-		System.out.println("Clearing");
 		Graphics g = getGraphics();
 		g.setColor(Color.WHITE);
 		g.fillRect(0, 0, getWidth(), getHeight());

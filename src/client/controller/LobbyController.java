@@ -21,7 +21,6 @@ public class LobbyController {
 			public void actionPerformed(ActionEvent e) {
 				// get input string
 				String message = view.getInputMessage();
-				System.out.println("Sending " + message);
 				sendMessage(message);
 				
 				view.clearInputMessage();

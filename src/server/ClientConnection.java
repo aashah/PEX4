@@ -50,7 +50,6 @@ public class ClientConnection {
 					}
 					
 					String[] tokens = message.split(" ");
-					System.out.println("Server got message: " + message);
 					MessageTypes opcode = MessageTypes.fromValue(tokens[0]);
 					switch(opcode) {
 						case QUIT: {

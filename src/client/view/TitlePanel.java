@@ -15,7 +15,6 @@ public class TitlePanel extends JPanel {
 	private BufferedImage image;
 	
 	public TitlePanel() {
-		System.out.println("Creating title panel");
 		this.setBackground(Color.CYAN);
 		try {
     		image = ImageIO.read(new File("src/titlePage.png"));
@@ -32,7 +31,6 @@ public class TitlePanel extends JPanel {
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		
-		System.out.println("Painting a picture.");
 		g.drawImage(image,0,0,getWidth(),getHeight(),null);
 	}
 }

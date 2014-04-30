@@ -48,7 +48,6 @@ public class GameRoom {
 	
 	public void startTurn() {
 		// give person a word
-		System.out.println("Starting game");
 		String username = order.get(currentPlayer);
 		new Thread(server.getRawMessage(MessageTypes.PICK_WORD,
 				server.getRandomWord() + " " +
