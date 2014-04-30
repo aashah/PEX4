@@ -33,6 +33,6 @@ public class TitlePanel extends JPanel {
 		super.paintComponent(g);
 		
 		System.out.println("Painting a picture.");
-		g.drawImage(image,0,0,null);
+		g.drawImage(image,0,0,getWidth(),getHeight(),null);
 	}
 }
