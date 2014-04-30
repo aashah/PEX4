@@ -83,7 +83,7 @@ public class Server {
 	
 	public void loadWordBank() {
 		try {
-			wordBank = Files.readAllLines(Paths.get("src/wordlist.txt"), Charset.defaultCharset());
+			wordBank = Files.readAllLines(Paths.get("wordlist.txt"), Charset.defaultCharset());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
