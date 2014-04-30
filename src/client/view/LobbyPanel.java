@@ -5,7 +5,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyListener;
 
 import javax.swing.DefaultListModel;
-import javax.swing.JPanel;
 import javax.swing.text.DefaultCaret;
 
 import client.controller.GameController;
@@ -23,6 +22,7 @@ public class LobbyPanel extends javax.swing.JPanel {
 	private Game gameModel;
 	private GamePanel gameView;
 	private GameController gameController;
+	private TitlePanel titleView;
 	
     private javax.swing.JButton sendMessage;
     private DefaultListModel<String> userListModel;
@@ -32,6 +32,7 @@ public class LobbyPanel extends javax.swing.JPanel {
     private javax.swing.JScrollPane userListScrollPane;
     private javax.swing.JTextArea message;
     private javax.swing.JTextField messageInput;
+    
     
     public LobbyPanel(Client model) {
     	this.model = model;
@@ -133,12 +134,17 @@ public class LobbyPanel extends javax.swing.JPanel {
 	}
 	
 	public void switchTo(ProgramState state) {
+		
+		
+		
 		mainPanel.removeAll();
 		mainPanel.setBackground(Color.RED);
 		switch (state) {
 		case LOBBY: {
 			// change the panel
-			this.mainPanel.add(new JPanel());
+			titleView = new TitlePanel();
+			titleView.setSize(this.mainPanel.getWidth(), this.mainPanel.getHeight());
+			this.mainPanel.add(titleView);
 			// same thing as GAME
 			break;
 		}

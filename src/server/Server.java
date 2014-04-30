@@ -66,7 +66,7 @@ public class Server {
 		}
 	}
 	
-	public static final int PORT = 1134;
+	public static final int PORT = 1198;
 	
 	private static final Random rand = new Random();
 	private ServerSocket serverSocket;

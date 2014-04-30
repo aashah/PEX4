@@ -16,12 +16,15 @@ import server.Server.MessageTypes;
 import client.controller.ClientController;
 import client.controller.LobbyController;
 import client.model.Client;
+import client.view.LobbyPanel.ProgramState;
 
 @SuppressWarnings("serial")
 public class DrawSomething extends JFrame {
 	
+	private LobbyPanel view;
+	
 	public DrawSomething(final Client model) throws IOException {
-		LobbyPanel view = new LobbyPanel(model);			
+		view = new LobbyPanel(model);
 		new ClientController(model, view);
 		new LobbyController(model, view);
 		
@@ -89,6 +92,10 @@ public class DrawSomething extends JFrame {
 		
 		setSize(new Dimension(1024, 850));
 	}
+	
+	public void switchToLobby() {
+		view.switchTo(ProgramState.LOBBY);
+	}
 
 	public static void main(String args[]) {
 		// prompt for username
@@ -102,6 +109,8 @@ public class DrawSomething extends JFrame {
 			DrawSomething game = new DrawSomething(model);
 			
 			game.setVisible(true);
+			game.switchToLobby();
+			
 			
 			game.addWindowListener(new java.awt.event.WindowAdapter() {
 			    @Override

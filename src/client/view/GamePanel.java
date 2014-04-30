@@ -26,7 +26,7 @@ public class GamePanel extends JPanel {
 	
 	public GamePanel(Game g) {
 		this.model = g;
-		this.setBackground(Color.WHITE);
+		this.setBackground(Color.CYAN);
 	}
 
 	public void paintComponent(Graphics g) {
